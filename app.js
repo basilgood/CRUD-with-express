@@ -53,34 +53,55 @@ app.get('/', (req, res) => {
   res.send(response);
 });
 
+const updateQuantity = (fruit, newQuantity) => {
+  // cauta indexul fructului in baza de date (fruits)
+  // seteaza noua cantitate
+  const i = fruits.indexOf(fruit);
+  fruits[i].quantity = newQuantity;
+};
+
 app.post('/buy', (req, res) => {
-  let cantitatea = req.body.qty;
-  const buyq = `
+  let cantitatea = parseInt(req.body.qty, 10);
+  if (isNaN(cantitatea)) {
+    return res.send('eroare: nu este numar');
+  }
+
+  let fructulcautat = getFruit(req.body.fruit);
+  // compar cantitatea ceruta cu cea disponibila
+  if (cantitatea <= fructulcautat.quantity) {
+    // modific cantitatea disponibila, scazand cantitatea ceruta
+    updateQuantity(fructulcautat, fructulcautat.quantity - cantitatea);
+
+    const buyq = `
   <html>
     <head>
       <title>buying page</title>
     </head>
     <body>
       <a href="/">Home</a>
-      <p>Ai cumparat ${cantitatea} kile</p>
+      <p>Ai cumparat ${cantitatea} kile de ${fructulcautat.name}</p>
     </body>
   </html>
 `;
-  res.send(buyq);
+    res.send(buyq);
+  } else {
+    res.send('erroare');
+  }
 });
 
-app.get('/:fruit', (req, res) => {
-  // presupunem ca fructul nu este in lista
-  let fructulcautat = null;
+const getFruit = fruit => {
   // parcurgem lista
   for (let i = 0; i < fruits.length; i++) {
     // comparam numele fiecarui fruct cu fructul cerut
-    if (fruits[i].name === req.params.fruit) {
-      fructulcautat = fruits[i];
-      break;
+    if (fruits[i].name === fruit) {
+      return fruits[i];
     }
   }
+  return false;
+};
 
+app.get('/:fruit', (req, res) => {
+  const fructulcautat = getFruit(req.params.fruit);
   if (fructulcautat) {
     const resp = `
     <!DOCTYPE html>
