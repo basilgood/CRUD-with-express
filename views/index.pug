@@ -1,0 +1,13 @@
+doctype html
+html
+  head
+    title Fruits store
+  body
+    h1 Buna ziua
+    h3 Bine ati venit
+    p Puteti cumpara urmatoarele:
+    ul
+      each fruit in fruits
+        li
+          a(href='/'+fruit.name) #{fruit.name}
+          span  #{fruit.price} lei/#{fruit.unit} cantitate: #{fruit.quantity}#{fruit.unit}
